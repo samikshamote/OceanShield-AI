@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ML datasets
+ml/detection/data/
+data/
+
+# Trained models
+ml/detection/models/*.pth
+ml/detection/models/*.pt
+ml/detection/models/*.ckpt
+
+# Generated outputs
+ml/detection/outputs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
