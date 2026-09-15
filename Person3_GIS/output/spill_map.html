@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_8ed388cdd720663aa8e14b4de9d15403 {
+                #map_124c9f30c6dec74e56290c82b7d9e3de {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,19 +54,37 @@
 <body>
     
     
-            <div class="folium-map" id="map_8ed388cdd720663aa8e14b4de9d15403" ></div>
+<div style="
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 150px;
+    background-color: white;
+    border: 2px solid grey;
+    z-index: 9999;
+    font-size: 14px;
+    padding: 10px;
+">
+    <b>Risk Level</b><br><br>
+
+    <span style="color:red;">●</span> HIGH<br>
+    <span style="color:orange;">●</span> MEDIUM<br>
+    <span style="color:green;">●</span> LOW
+</div>
+    
+            <div class="folium-map" id="map_124c9f30c6dec74e56290c82b7d9e3de" ></div>
         
 </body>
 <script>
     
     
-            var map_8ed388cdd720663aa8e14b4de9d15403 = L.map(
-                "map_8ed388cdd720663aa8e14b4de9d15403",
+            var map_124c9f30c6dec74e56290c82b7d9e3de = L.map(
+                "map_124c9f30c6dec74e56290c82b7d9e3de",
                 {
-                    center: [18.5, 72.8],
+                    center: [18.5204, 73.8567],
                     crs: L.CRS.EPSG3857,
                     ...{
-  "zoom": 10,
+  "zoom": 6,
   "zoomControl": true,
   "preferCanvas": false,
 }
@@ -78,7 +96,7 @@
 
         
     
-            var tile_layer_b7da6cf8081d05630d2c9f63bad9f98e = L.tileLayer(
+            var tile_layer_638a6cebfc70e83a55489d4ee3a0db7b = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -95,36 +113,36 @@
             );
         
     
-            tile_layer_b7da6cf8081d05630d2c9f63bad9f98e.addTo(map_8ed388cdd720663aa8e14b4de9d15403);
+            tile_layer_638a6cebfc70e83a55489d4ee3a0db7b.addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
         
     
-            var marker_8a165abfa7d02fa452541080cf01575a = L.marker(
-                [18.5, 72.8],
+            var marker_f6f1ea2a64ce5f17dbdb167d505aa06f = L.marker(
+                [18.5204, 73.8567],
                 {
 }
-            ).addTo(map_8ed388cdd720663aa8e14b4de9d15403);
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
         
     
-        var popup_98250e435ca540f90c3b5f425e05f76f = L.popup({
+        var popup_cca7807cfec653be1ccee080ada067c0 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_ac2483e75da30858ebe6727addddc915 = $(`<div id="html_ac2483e75da30858ebe6727addddc915" style="width: 100.0%; height: 100.0%;">Oil Spill Detected</div>`)[0];
-                popup_98250e435ca540f90c3b5f425e05f76f.setContent(html_ac2483e75da30858ebe6727addddc915);
+                var html_e7092ac755d228e77c64fcdc1a90359a = $(`<div id="html_e7092ac755d228e77c64fcdc1a90359a" style="width: 100.0%; height: 100.0%;">         <b>Original Oil Spill</b><br><br>         AI Confidence: 90.0%<br>         Risk Level: HIGH<br>         Affected Radius: 5 km<br>         Affected Area: 78.54 km²<br>         Wind Speed: 20 km/h<br>         Wind Direction: East         </div>`)[0];
+                popup_cca7807cfec653be1ccee080ada067c0.setContent(html_e7092ac755d228e77c64fcdc1a90359a);
             
         
 
-        marker_8a165abfa7d02fa452541080cf01575a.bindPopup(popup_98250e435ca540f90c3b5f425e05f76f)
+        marker_f6f1ea2a64ce5f17dbdb167d505aa06f.bindPopup(popup_cca7807cfec653be1ccee080ada067c0)
         ;
 
         
     
     
-            marker_8a165abfa7d02fa452541080cf01575a.bindTooltip(
+            marker_f6f1ea2a64ce5f17dbdb167d505aa06f.bindTooltip(
                 `<div>
-                     Spill Location
+                     Original Spill Location
                  </div>`,
                 {
   "sticky": true,
@@ -132,36 +150,368 @@
             );
         
     
-            var circle_25bde93e6d41df885d5281fb058d564d = L.circle(
-                [18.5, 72.8],
-                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 10000.0, "stroke": true, "weight": 3}
-            ).addTo(map_8ed388cdd720663aa8e14b4de9d15403);
+            var circle_32456c7341a5f4a2e12e4b56608c50e9 = L.circle(
+                [18.5204, 73.8567],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5000, "stroke": true, "weight": 3}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
         
     
-        var popup_4423b8cdfbef1dea26e3536121f91fb1 = L.popup({
+        var popup_df5f64f6707d2a33bf0bcb451c57e17b = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_90345655490825e72223b71b273ee7d5 = $(`<div id="html_90345655490825e72223b71b273ee7d5" style="width: 100.0%; height: 100.0%;">Potentially Affected Area - 10.0 km</div>`)[0];
-                popup_4423b8cdfbef1dea26e3536121f91fb1.setContent(html_90345655490825e72223b71b273ee7d5);
+                var html_0fc829c1807f41cfc60ee2d23b60d454 = $(`<div id="html_0fc829c1807f41cfc60ee2d23b60d454" style="width: 100.0%; height: 100.0%;">         <b>Oil Spill Information</b><br><br>         AI Confidence: 90.0%<br>         Risk Level: HIGH<br>         Affected Radius: 5 km<br>         Affected Area: 78.54 km²<br>         Wind Speed: 20 km/h<br>         Wind Direction: East         </div>`)[0];
+                popup_df5f64f6707d2a33bf0bcb451c57e17b.setContent(html_0fc829c1807f41cfc60ee2d23b60d454);
             
         
 
-        circle_25bde93e6d41df885d5281fb058d564d.bindPopup(popup_4423b8cdfbef1dea26e3536121f91fb1)
+        circle_32456c7341a5f4a2e12e4b56608c50e9.bindPopup(popup_df5f64f6707d2a33bf0bcb451c57e17b)
         ;
 
         
     
     
-            circle_25bde93e6d41df885d5281fb058d564d.bindTooltip(
+            circle_32456c7341a5f4a2e12e4b56608c50e9.bindTooltip(
                 `<div>
-                     Affected Zone
+                     HIGH Risk Zone
                  </div>`,
                 {
   "sticky": true,
 }
+            );
+        
+    
+            var marker_20211c878b1544214d6659544f3135b8 = L.marker(
+                [18.5204, 73.87471801801802],
+                {
+}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+            var icon_3e9774f410270c6428a694ec4fde07bb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "black",
+  "iconColor": "white",
+  "icon": "arrow-right",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_6189c9c3267b4da1c52bb0c510e372a5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3097027dc79ed86607a5831aaab3f0b7 = $(`<div id="html_3097027dc79ed86607a5831aaab3f0b7" style="width: 100.0%; height: 100.0%;">         <b>Predicted Spill Location</b><br><br>         Wind Speed: 20 km/h<br>         Wind Direction: East<br>         Estimated Movement: 2.00 km         </div>`)[0];
+                popup_6189c9c3267b4da1c52bb0c510e372a5.setContent(html_3097027dc79ed86607a5831aaab3f0b7);
+            
+        
+
+        marker_20211c878b1544214d6659544f3135b8.bindPopup(popup_6189c9c3267b4da1c52bb0c510e372a5)
+        ;
+
+        
+    
+    
+            marker_20211c878b1544214d6659544f3135b8.bindTooltip(
+                `<div>
+                     Predicted Spill Location
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_20211c878b1544214d6659544f3135b8.setIcon(icon_3e9774f410270c6428a694ec4fde07bb);
+            
+    
+            var poly_line_3e6248dd345df75eeefa72dae3e02357 = L.polyline(
+                [[18.5204, 73.8567], [18.5204, 73.87471801801802]],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+            poly_line_3e6248dd345df75eeefa72dae3e02357.bindTooltip(
+                `<div>
+                     Predicted Spill Movement
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_dd0854dee61231f2c531cefaa023ce78 = L.marker(
+                [19.076, 72.8777],
+                {
+}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+        var popup_742808432349646c281070f332a1ff57 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_582970ffb3013399f16972e0b4d6da99 = $(`<div id="html_582970ffb3013399f16972e0b4d6da99" style="width: 100.0%; height: 100.0%;">         <b>Original Oil Spill</b><br><br>         AI Confidence: 80.0%<br>         Risk Level: MEDIUM<br>         Affected Radius: 3 km<br>         Affected Area: 28.27 km²<br>         Wind Speed: 15 km/h<br>         Wind Direction: North         </div>`)[0];
+                popup_742808432349646c281070f332a1ff57.setContent(html_582970ffb3013399f16972e0b4d6da99);
+            
+        
+
+        marker_dd0854dee61231f2c531cefaa023ce78.bindPopup(popup_742808432349646c281070f332a1ff57)
+        ;
+
+        
+    
+    
+            marker_dd0854dee61231f2c531cefaa023ce78.bindTooltip(
+                `<div>
+                     Original Spill Location
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_9086c40b66ea5870f80aa16a47f0e83d = L.circle(
+                [19.076, 72.8777],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 3000, "stroke": true, "weight": 3}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+        var popup_3fda7521591806b41e0bc4c861bb3fce = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ff9352906f34132c03cffeff54a097fa = $(`<div id="html_ff9352906f34132c03cffeff54a097fa" style="width: 100.0%; height: 100.0%;">         <b>Oil Spill Information</b><br><br>         AI Confidence: 80.0%<br>         Risk Level: MEDIUM<br>         Affected Radius: 3 km<br>         Affected Area: 28.27 km²<br>         Wind Speed: 15 km/h<br>         Wind Direction: North         </div>`)[0];
+                popup_3fda7521591806b41e0bc4c861bb3fce.setContent(html_ff9352906f34132c03cffeff54a097fa);
+            
+        
+
+        circle_9086c40b66ea5870f80aa16a47f0e83d.bindPopup(popup_3fda7521591806b41e0bc4c861bb3fce)
+        ;
+
+        
+    
+    
+            circle_9086c40b66ea5870f80aa16a47f0e83d.bindTooltip(
+                `<div>
+                     MEDIUM Risk Zone
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_1c2f1af2c2595c6458d041907ae2fe22 = L.marker(
+                [19.089513513513513, 72.8777],
+                {
+}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+            var icon_0fe2afd3aab2257509e5456ef770e960 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "black",
+  "iconColor": "white",
+  "icon": "arrow-right",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_70c07f354084e4419f2cdde4f12752f7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_45b14acc61ca03a88f94a47a1b5245d3 = $(`<div id="html_45b14acc61ca03a88f94a47a1b5245d3" style="width: 100.0%; height: 100.0%;">         <b>Predicted Spill Location</b><br><br>         Wind Speed: 15 km/h<br>         Wind Direction: North<br>         Estimated Movement: 1.50 km         </div>`)[0];
+                popup_70c07f354084e4419f2cdde4f12752f7.setContent(html_45b14acc61ca03a88f94a47a1b5245d3);
+            
+        
+
+        marker_1c2f1af2c2595c6458d041907ae2fe22.bindPopup(popup_70c07f354084e4419f2cdde4f12752f7)
+        ;
+
+        
+    
+    
+            marker_1c2f1af2c2595c6458d041907ae2fe22.bindTooltip(
+                `<div>
+                     Predicted Spill Location
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_1c2f1af2c2595c6458d041907ae2fe22.setIcon(icon_0fe2afd3aab2257509e5456ef770e960);
+            
+    
+            var poly_line_f471f35c5c85c05eb251055434386023 = L.polyline(
+                [[19.076, 72.8777], [19.089513513513513, 72.8777]],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+            poly_line_f471f35c5c85c05eb251055434386023.bindTooltip(
+                `<div>
+                     Predicted Spill Movement
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0b570ad3ebfccb401b4d783744f98b86 = L.marker(
+                [15.4909, 73.8278],
+                {
+}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+        var popup_dc75aa97a2aae9b2a1a2463e8e79f4b6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5254f72aea9c33aeab6c856f83a87f51 = $(`<div id="html_5254f72aea9c33aeab6c856f83a87f51" style="width: 100.0%; height: 100.0%;">         <b>Original Oil Spill</b><br><br>         AI Confidence: 60.0%<br>         Risk Level: LOW<br>         Affected Radius: 1 km<br>         Affected Area: 3.14 km²<br>         Wind Speed: 10 km/h<br>         Wind Direction: West         </div>`)[0];
+                popup_dc75aa97a2aae9b2a1a2463e8e79f4b6.setContent(html_5254f72aea9c33aeab6c856f83a87f51);
+            
+        
+
+        marker_0b570ad3ebfccb401b4d783744f98b86.bindPopup(popup_dc75aa97a2aae9b2a1a2463e8e79f4b6)
+        ;
+
+        
+    
+    
+            marker_0b570ad3ebfccb401b4d783744f98b86.bindTooltip(
+                `<div>
+                     Original Spill Location
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_8c39bdbe9bdbe38e0322f5313f1deff4 = L.circle(
+                [15.4909, 73.8278],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1000, "stroke": true, "weight": 3}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+        var popup_a39068df57f1d4e7fc2545e73913a2f9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c4aebaf1e8b7d810bb67df3d94fbcb80 = $(`<div id="html_c4aebaf1e8b7d810bb67df3d94fbcb80" style="width: 100.0%; height: 100.0%;">         <b>Oil Spill Information</b><br><br>         AI Confidence: 60.0%<br>         Risk Level: LOW<br>         Affected Radius: 1 km<br>         Affected Area: 3.14 km²<br>         Wind Speed: 10 km/h<br>         Wind Direction: West         </div>`)[0];
+                popup_a39068df57f1d4e7fc2545e73913a2f9.setContent(html_c4aebaf1e8b7d810bb67df3d94fbcb80);
+            
+        
+
+        circle_8c39bdbe9bdbe38e0322f5313f1deff4.bindPopup(popup_a39068df57f1d4e7fc2545e73913a2f9)
+        ;
+
+        
+    
+    
+            circle_8c39bdbe9bdbe38e0322f5313f1deff4.bindTooltip(
+                `<div>
+                     LOW Risk Zone
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_39ab9864e7427b5a3d5e5ce78f412e02 = L.marker(
+                [15.4909, 73.81879099099099],
+                {
+}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+            var icon_2946b9b89fa180222be0f9d54c7ddb6a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "black",
+  "iconColor": "white",
+  "icon": "arrow-right",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7b268bb371b96a19203b87af52ec0203 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_884a1de1464924bbbbdcccca6c4c58e4 = $(`<div id="html_884a1de1464924bbbbdcccca6c4c58e4" style="width: 100.0%; height: 100.0%;">         <b>Predicted Spill Location</b><br><br>         Wind Speed: 10 km/h<br>         Wind Direction: West<br>         Estimated Movement: 1.00 km         </div>`)[0];
+                popup_7b268bb371b96a19203b87af52ec0203.setContent(html_884a1de1464924bbbbdcccca6c4c58e4);
+            
+        
+
+        marker_39ab9864e7427b5a3d5e5ce78f412e02.bindPopup(popup_7b268bb371b96a19203b87af52ec0203)
+        ;
+
+        
+    
+    
+            marker_39ab9864e7427b5a3d5e5ce78f412e02.bindTooltip(
+                `<div>
+                     Predicted Spill Location
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_39ab9864e7427b5a3d5e5ce78f412e02.setIcon(icon_2946b9b89fa180222be0f9d54c7ddb6a);
+            
+    
+            var poly_line_3ce0d7be55e0d6d3ee7e9de6ead605c5 = L.polyline(
+                [[15.4909, 73.8278], [15.4909, 73.81879099099099]],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_124c9f30c6dec74e56290c82b7d9e3de);
+        
+    
+            poly_line_3ce0d7be55e0d6d3ee7e9de6ead605c5.bindTooltip(
+                `<div>
+                     Predicted Spill Movement
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            map_124c9f30c6dec74e56290c82b7d9e3de.fitBounds(
+                [[18.5204, 73.8567], [19.076, 72.8777], [15.4909, 73.8278]],
+                {}
             );
         
 </script>
