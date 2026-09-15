@@ -21,7 +21,7 @@ class DoubleConv(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, in_channels=3, out_channels=1):
+    def __init__(self, in_channels=1, out_channels=1):
         super().__init__()
 
         self.encoder1 = DoubleConv(in_channels, 64)
