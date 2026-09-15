@@ -23,6 +23,9 @@ ml/detection/models/*.ckpt
 # Generated outputs
 ml/detection/outputs/
 
+# Person 3 GIS virtual environment
+Person3_GIS/venv/
+
 # IDE
 .vscode/
 .idea/

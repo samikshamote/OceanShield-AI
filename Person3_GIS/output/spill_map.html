@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_8ed388cdd720663aa8e14b4de9d15403 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_8ed388cdd720663aa8e14b4de9d15403" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_8ed388cdd720663aa8e14b4de9d15403 = L.map(
+                "map_8ed388cdd720663aa8e14b4de9d15403",
+                {
+                    center: [18.5, 72.8],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_b7da6cf8081d05630d2c9f63bad9f98e = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_b7da6cf8081d05630d2c9f63bad9f98e.addTo(map_8ed388cdd720663aa8e14b4de9d15403);
+        
+    
+            var marker_8a165abfa7d02fa452541080cf01575a = L.marker(
+                [18.5, 72.8],
+                {
+}
+            ).addTo(map_8ed388cdd720663aa8e14b4de9d15403);
+        
+    
+        var popup_98250e435ca540f90c3b5f425e05f76f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ac2483e75da30858ebe6727addddc915 = $(`<div id="html_ac2483e75da30858ebe6727addddc915" style="width: 100.0%; height: 100.0%;">Oil Spill Detected</div>`)[0];
+                popup_98250e435ca540f90c3b5f425e05f76f.setContent(html_ac2483e75da30858ebe6727addddc915);
+            
+        
+
+        marker_8a165abfa7d02fa452541080cf01575a.bindPopup(popup_98250e435ca540f90c3b5f425e05f76f)
+        ;
+
+        
+    
+    
+            marker_8a165abfa7d02fa452541080cf01575a.bindTooltip(
+                `<div>
+                     Spill Location
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_25bde93e6d41df885d5281fb058d564d = L.circle(
+                [18.5, 72.8],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 10000.0, "stroke": true, "weight": 3}
+            ).addTo(map_8ed388cdd720663aa8e14b4de9d15403);
+        
+    
+        var popup_4423b8cdfbef1dea26e3536121f91fb1 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_90345655490825e72223b71b273ee7d5 = $(`<div id="html_90345655490825e72223b71b273ee7d5" style="width: 100.0%; height: 100.0%;">Potentially Affected Area - 10.0 km</div>`)[0];
+                popup_4423b8cdfbef1dea26e3536121f91fb1.setContent(html_90345655490825e72223b71b273ee7d5);
+            
+        
+
+        circle_25bde93e6d41df885d5281fb058d564d.bindPopup(popup_4423b8cdfbef1dea26e3536121f91fb1)
+        ;
+
+        
+    
+    
+            circle_25bde93e6d41df885d5281fb058d564d.bindTooltip(
+                `<div>
+                     Affected Zone
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
