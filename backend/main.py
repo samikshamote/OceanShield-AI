@@ -34,6 +34,23 @@ GIS_FILE = (
     / "spill_footprint.geojson"
 )
 
+AI_ASSESSMENT_FILE = (
+    PROJECT_ROOT
+    / "ml"
+    / "detection"
+    / "outputs"
+    / "ai_assessment.json"
+)
+
+DECISION_FILE = (
+    PROJECT_ROOT
+    / "ml"
+    / "detection"
+    / "outputs"
+    / "decision_result.json"
+)
+
+
 # --------------------------------------------------
 # FASTAPI APP
 # --------------------------------------------------
@@ -161,6 +178,80 @@ def get_gis_data():
     try:
 
         with open(GIS_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        return {
+            "success": True,
+            "data": data
+        }
+
+    except Exception as error:
+
+        return {
+            "success": False,
+            "error": str(error)
+        }
+
+
+# --------------------------------------------------
+# AI ASSESSMENT
+# --------------------------------------------------
+
+@app.get("/api/ai-assessment")
+def get_ai_assessment():
+
+    if not AI_ASSESSMENT_FILE.exists():
+        return {
+            "success": False,
+            "error": "AI assessment file not found",
+            "path": str(AI_ASSESSMENT_FILE)
+        }
+
+    try:
+
+        with open(
+            AI_ASSESSMENT_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            data = json.load(file)
+
+        return {
+            "success": True,
+            "data": data
+        }
+
+    except Exception as error:
+
+        return {
+            "success": False,
+            "error": str(error)
+        }
+
+
+# --------------------------------------------------
+# AI DECISION ENGINE
+# --------------------------------------------------
+
+@app.get("/api/decision")
+def get_decision():
+
+    if not DECISION_FILE.exists():
+        return {
+            "success": False,
+            "error": "Decision result file not found",
+            "path": str(DECISION_FILE)
+        }
+
+    try:
+
+        with open(
+            DECISION_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
             data = json.load(file)
 
         return {

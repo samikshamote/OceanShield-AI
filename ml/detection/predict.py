@@ -455,6 +455,10 @@ probability_map = np.clip(
     1
 )
 
+probability_map_path = OUTPUT_DIR / "prediction_probability.npy"
+np.save(probability_map_path, probability_map)
+print(f"Probability map saved: {probability_map_path}")
+
 
 # ============================================================
 # BINARY PREDICTION
@@ -1205,3 +1209,25 @@ print(
 
 print()
 print("Inference complete.")
+
+# ============================================================
+# RUN AI ASSESSMENT
+# ============================================================
+
+print()
+print("=" * 60)
+print("RUNNING AI ASSESSMENT...")
+print("=" * 60)
+
+import subprocess
+import sys
+
+assessment_script = (
+    Path(__file__).resolve().parent
+    / "ai_assessment.py"
+)
+
+subprocess.run(
+    [sys.executable, str(assessment_script)],
+    check=True
+)

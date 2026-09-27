@@ -25,3 +25,11 @@ ml/detection/models/*.pth
 # Generated detection images
 ml/detection/outputs/*.png
 ml/detection/outputs/*.tif
+
+# Generated detection probability map
+ml/detection/outputs/*.npy
+
+# Generated AI assessment outputs
+ml/detection/outputs/ai_assessment.json
+ml/detection/outputs/candidate_assessment.json
+ml/detection/outputs/decision_result.json
