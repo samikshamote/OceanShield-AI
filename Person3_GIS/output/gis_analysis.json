@@ -1,0 +1,47 @@
+{
+    "project": "OceanShield-AI",
+    "scene": "2018_09_26.tif",
+    "date": "2018-09-26",
+    "spill_detected": true,
+    "risk_level": "HIGH",
+    "risk_classification": "AI-derived Prototype Risk Classification",
+    "spill": {
+        "area_km2": 79.7762,
+        "coverage_percentage": 6.142742798315092,
+        "mean_confidence": 0.759473443031311,
+        "maximum_confidence": 0.997193455696106
+    },
+    "centroid": {
+        "latitude": 28.921273782120938,
+        "longitude": -89.16764942152943
+    },
+    "bounding_box": {
+        "min_latitude": 28.779582316996514,
+        "min_longitude": -89.42512818401086,
+        "max_latitude": 29.00186811311585,
+        "max_longitude": -88.9134300852514
+    },
+    "movement": {
+        "type": "Prototype Drift Projection",
+        "wind_speed_kmh": 20,
+        "wind_direction": "East",
+        "estimated_distance_km": 2.0,
+        "predicted_latitude": 28.921273782120938,
+        "predicted_longitude": -89.14706410645903
+    },
+    "crs": {
+        "source": "EPSG:32616",
+        "web_map": "EPSG:4326"
+    },
+    "visualization": {
+        "footprint_source": "Detection Bounding Box Fallback",
+        "visualization_radius_km": 5.039201637380204,
+        "vessel_tracks": "Not available"
+    },
+    "limitations": [
+        "Prototype Risk Classification is not a scientifically validated environmental risk model.",
+        "Prototype Drift Projection is based on configured wind input and is not real-time ocean-current prediction.",
+        "Predicted position is for situational awareness and is not an exact future spill boundary.",
+        "Actual AI spill geometry requires spill_mask.tif."
+    ]
+}
