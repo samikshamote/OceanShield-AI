@@ -3,33 +3,25 @@ __pycache__/
 *.py[cod]
 *.pyo
 
-# Virtual environment
-.venv/
+# Virtual environments
 venv/
-env/
+.venv/
 
-# Jupyter
-.ipynb_checkpoints/
+# Node
+node_modules/
+dist/
 
-# ML datasets
-ml/detection/data/
-data/
+# Environment files
+.env
+.env.*
 
-# Trained models
-ml/detection/models/*.pth
-ml/detection/models/*.pt
-ml/detection/models/*.ckpt
-
-# Generated outputs
-ml/detection/outputs/
-
-# Person 3 GIS virtual environment
-Person3_GIS/venv/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
+# OS / editor
 .DS_Store
-Thumbs.db
+.vscode/
+
+# Large ML model
+ml/detection/models/*.pth
+
+# Generated detection images
+ml/detection/outputs/*.png
+ml/detection/outputs/*.tif

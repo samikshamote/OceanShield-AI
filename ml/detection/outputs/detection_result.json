@@ -1,0 +1,37 @@
+{
+    "project": "OceanShield-AI",
+    "scene": "2018_09_26.tif",
+    "acquisition_date": "2018-09-26",
+    "crs": "EPSG:32616",
+    "image": {
+        "width": 5083,
+        "height": 2555,
+        "pixel_width_m": 10.0,
+        "pixel_height_m": 10.0,
+        "pixel_area_m2": 100.0
+    },
+    "spill_detected": true,
+    "spill": {
+        "pixels": 797762,
+        "percentage": 6.142742798315092,
+        "area_m2": 79776200.0,
+        "area_km2": 79.7762
+    },
+    "confidence": {
+        "maximum": 0.997193455696106,
+        "mean_spill": 0.759473443031311
+    },
+    "centroid": {
+        "latitude": 28.921273782120938,
+        "longitude": -89.16764942152943
+    },
+    "bounding_box": {
+        "min_latitude": 28.779582316996514,
+        "min_longitude": -89.42512818401086,
+        "max_latitude": 29.00186811311585,
+        "max_longitude": -88.9134300852514
+    },
+    "outputs": {
+        "spill_mask": "C:\\Users\\Ninad\\Desktop\\New folder\\OceanShield-AI\\ml\\detection\\outputs\\spill_mask.tif"
+    }
+}

@@ -1,4 +1,6 @@
+import json
 import os
+from pathlib import Path
 
 from ais_loader import load_ais_data
 from candidate_filter import (
@@ -7,6 +9,62 @@ from candidate_filter import (
 )
 from trajectory import analyze_trajectory
 from scoring import generate_scores
+
+
+# ============================================================
+# PATHS
+# ============================================================
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+DETECTION_RESULT_PATH = (
+    PROJECT_ROOT
+    / "ml"
+    / "detection"
+    / "outputs"
+    / "detection_result.json"
+)
+
+AIS_FILE_PATH = (
+    PROJECT_ROOT
+    / "ml"
+    / "attribution"
+    / "data"
+    / "ais_sample.csv"
+)
+
+OUTPUT_DIRECTORY = (
+    PROJECT_ROOT
+    / "ml"
+    / "attribution"
+    / "outputs"
+)
+
+
+# ============================================================
+# LOAD DETECTION RESULT
+# ============================================================
+
+def load_detection_result():
+
+    if not DETECTION_RESULT_PATH.exists():
+
+        raise FileNotFoundError(
+            "Detection result not found:\n"
+            f"{DETECTION_RESULT_PATH}\n\n"
+            "Run the U-Net detection pipeline first:\n"
+            "python ml\\detection\\predict.py"
+        )
+
+    with open(
+        DETECTION_RESULT_PATH,
+        "r",
+        encoding="utf-8"
+    ) as file:
+
+        result = json.load(file)
+
+    return result
 
 
 # ============================================================
@@ -20,23 +78,114 @@ def main():
     print("AIS VESSEL ATTRIBUTION PIPELINE")
     print("=" * 70)
 
-    # --------------------------------------------------------
-    # 1. File path
-    # --------------------------------------------------------
+    # ========================================================
+    # 1. LOAD AI DETECTION RESULT
+    # ========================================================
 
-    file_path = "ml/attribution/data/ais_sample.csv"
+    print("\n")
+    print("=" * 70)
+    print("LOADING DETECTION RESULT")
+    print("=" * 70)
 
-    # --------------------------------------------------------
-    # 2. Spill information
-    # --------------------------------------------------------
-
-    spill_lat = 18.5200
-    spill_lon = 72.9100
-    spill_time = "2026-09-15 10:30:00"
+    detection_result = load_detection_result()
 
     # --------------------------------------------------------
-    # 3. Filtering parameters
+    # Verify that a spill was detected
     # --------------------------------------------------------
+
+    if not detection_result.get(
+        "spill_detected",
+        False
+    ):
+
+        print(
+            "\nNo oil spill detected by the AI model."
+        )
+
+        return
+
+    # --------------------------------------------------------
+    # Extract spill coordinates
+    # --------------------------------------------------------
+
+    centroid = detection_result.get(
+        "centroid",
+        {}
+    )
+
+    spill_lat = centroid.get(
+        "latitude"
+    )
+
+    spill_lon = centroid.get(
+        "longitude"
+    )
+
+    acquisition_date = detection_result.get(
+        "acquisition_date"
+    )
+
+    if (
+        spill_lat is None
+        or spill_lon is None
+    ):
+
+        raise ValueError(
+            "Detection result does not contain "
+            "valid spill coordinates."
+        )
+
+    # --------------------------------------------------------
+    # AIS time limitation
+    # --------------------------------------------------------
+
+    # The current detection JSON contains the acquisition DATE,
+    # but not an exact acquisition TIME.
+    #
+    # Therefore, we do NOT invent a timestamp.
+    #
+    # For the current prototype, the AIS analysis time must be
+    # supplied explicitly.
+
+    spill_time = os.getenv(
+        "OCEANSHIELD_SPILL_TIME"
+    )
+
+    if not spill_time:
+
+        print(
+            "\nWARNING:"
+        )
+
+        print(
+            "Exact Sentinel-1 acquisition time is not "
+            "available in detection_result.json."
+        )
+
+        print(
+            "AIS time filtering therefore requires "
+            "OCEANSHIELD_SPILL_TIME."
+        )
+
+        print(
+            "\nExample:"
+        )
+
+        print(
+            '$env:OCEANSHIELD_SPILL_TIME = '
+            '"2018-09-26 10:30:00"'
+        )
+
+        print(
+            "\nThe detected spill location will still be "
+            "used automatically."
+        )
+
+        return
+
+    # ========================================================
+    # 2. SPILL INFORMATION
+    # ========================================================
 
     max_distance_km = 10
     max_time_minutes = 60
@@ -44,11 +193,50 @@ def main():
     print("\nSPILL INFORMATION")
     print("-" * 70)
 
-    print(f"Latitude       : {spill_lat}")
-    print(f"Longitude      : {spill_lon}")
-    print(f"Spill time     : {spill_time}")
-    print(f"Distance limit : {max_distance_km} km")
-    print(f"Time window    : ±{max_time_minutes} minutes")
+    print(
+        f"Detection scene : "
+        f"{detection_result.get('scene')}"
+    )
+
+    print(
+        f"Acquisition date: "
+        f"{acquisition_date}"
+    )
+
+    print(
+        f"Latitude        : "
+        f"{spill_lat:.6f}"
+    )
+
+    print(
+        f"Longitude       : "
+        f"{spill_lon:.6f}"
+    )
+
+    print(
+        f"Spill time      : "
+        f"{spill_time}"
+    )
+
+    print(
+        f"Detected area   : "
+        f"{detection_result['spill']['area_km2']:.2f} km²"
+    )
+
+    print(
+        f"Mean confidence: "
+        f"{detection_result['confidence']['mean_spill']:.3f}"
+    )
+
+    print(
+        f"Distance limit  : "
+        f"{max_distance_km} km"
+    )
+
+    print(
+        f"Time window     : "
+        f"±{max_time_minutes} minutes"
+    )
 
     # ========================================================
     # STEP 1 - LOAD AIS DATA
@@ -59,10 +247,13 @@ def main():
     print("STEP 1: LOADING AIS DATA")
     print("=" * 70)
 
-    ais_data = load_ais_data(file_path)
+    ais_data = load_ais_data(
+        str(AIS_FILE_PATH)
+    )
 
     print(
-        f"Total AIS records loaded: {len(ais_data)}"
+        f"Total AIS records loaded: "
+        f"{len(ais_data)}"
     )
 
     # ========================================================
@@ -82,7 +273,8 @@ def main():
     )
 
     print(
-        f"Records within {max_distance_km} km: "
+        f"Records within "
+        f"{max_distance_km} km: "
         f"{len(distance_candidates)}"
     )
 
@@ -102,7 +294,8 @@ def main():
     )
 
     print(
-        f"Records within ±{max_time_minutes} minutes: "
+        f"Records within "
+        f"±{max_time_minutes} minutes: "
         f"{len(time_candidates)}"
     )
 
@@ -136,14 +329,15 @@ def main():
     print("=" * 70)
 
     ranked_vessels = generate_scores(
-    time_candidates,
-    trajectory_results,
-    ais_data,
-    spill_lat,
-    spill_lon,
-    max_distance_km,
-    max_time_minutes
-)
+        time_candidates,
+        trajectory_results,
+        ais_data,
+        spill_lat,
+        spill_lon,
+        max_distance_km,
+        max_time_minutes
+    )
+
     # ========================================================
     # STEP 6 - DISPLAY RESULTS
     # ========================================================
@@ -155,7 +349,9 @@ def main():
 
     if ranked_vessels.empty:
 
-        print("\nNo candidate vessels found.")
+        print(
+            "\nNo candidate vessels found."
+        )
 
         return
 
@@ -188,11 +384,13 @@ def main():
     print("=" * 70)
 
     print(
-        f"MMSI                  : {best['MMSI']}"
+        f"MMSI                  : "
+        f"{best['MMSI']}"
     )
 
     print(
-        f"Ship type             : {best['ship_type']}"
+        f"Ship type             : "
+        f"{best['ship_type']}"
     )
 
     print(
@@ -224,15 +422,14 @@ def main():
     # STEP 8 - SAVE RESULTS
     # ========================================================
 
-    output_directory = "ml/attribution/outputs"
-
-    os.makedirs(
-        output_directory,
+    OUTPUT_DIRECTORY.mkdir(
+        parents=True,
         exist_ok=True
     )
 
     output_file = (
-        f"{output_directory}/ranked_candidates.csv"
+        OUTPUT_DIRECTORY
+        / "ranked_candidates.csv"
     )
 
     ranked_vessels.to_csv(
@@ -246,7 +443,8 @@ def main():
     print("=" * 70)
 
     print(
-        f"Output file: {output_file}"
+        f"Output file: "
+        f"{output_file}"
     )
 
     # ========================================================
@@ -262,6 +460,7 @@ def main():
         "\nNote: Attribution score is an evidence-based "
         "ranking score and does not prove causation."
     )
+
 
 if __name__ == "__main__":
     main()
