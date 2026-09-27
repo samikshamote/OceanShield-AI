@@ -1,0 +1,80 @@
+{
+    "project": "OceanShield-AI",
+    "data_type": "Synthetic AIS Demo Scenario",
+    "purpose": "AIS-based vessel investigation and evidence ranking around a detected oil-spill location.",
+    "important_note": "The attribution score is an evidence-based ranking score. It does not prove that a vessel caused the spill.",
+    "incident": {
+        "scene": "2018_09_26.tif",
+        "acquisition_date": "2018-09-26",
+        "latitude": 28.921273782120938,
+        "longitude": -89.16764942152943,
+        "detected_area_km2": null,
+        "mean_confidence": null,
+        "spill_time": "2018-09-26 10:30:00",
+        "spill_time_type": "DEMO_REFERENCE_TIME",
+        "spill_time_note": "Reference/demo time used for AIS correlation. The exact Sentinel-1 acquisition time is not available in detection_result.json."
+    },
+    "filtering": {
+        "maximum_distance_km": 10,
+        "time_window_minutes": 60
+    },
+    "candidates": [
+        {
+            "rank": 1,
+            "mmsi": "111000001",
+            "ship_type": "Tanker",
+            "distance_km": 0.744,
+            "time_difference_minutes": 10.0,
+            "trajectory": "Approached Then Moved Away",
+            "average_speed": 9.98,
+            "average_cog": 135.0,
+            "destination": "New Orleans",
+            "evidence_score": 88.22,
+            "evidence_components": {
+                "distance_score": 0.9256,
+                "time_score": 0.8333,
+                "trajectory_score": 1.0,
+                "approach_score": 1.0,
+                "heading_score": 0.5858
+            }
+        },
+        {
+            "rank": 2,
+            "mmsi": "333000003",
+            "ship_type": "Tanker",
+            "distance_km": 2.095,
+            "time_difference_minutes": 20.0,
+            "trajectory": "Approaching",
+            "average_speed": 8.9,
+            "average_cog": 315.0,
+            "destination": "Mobile",
+            "evidence_score": 71.3,
+            "evidence_components": {
+                "distance_score": 0.7905,
+                "time_score": 0.6667,
+                "trajectory_score": 0.7,
+                "approach_score": 1.0,
+                "heading_score": 0.2498
+            }
+        },
+        {
+            "rank": 3,
+            "mmsi": "222000002",
+            "ship_type": "Cargo",
+            "distance_km": 9.964,
+            "time_difference_minutes": 10.0,
+            "trajectory": "Stable",
+            "average_speed": 13.0,
+            "average_cog": 45.0,
+            "destination": "Houston",
+            "evidence_score": 37.11,
+            "evidence_components": {
+                "distance_score": 0.0036,
+                "time_score": 0.8333,
+                "trajectory_score": 0.2,
+                "approach_score": 0.5833,
+                "heading_score": 0.3782
+            }
+        }
+    ]
+}

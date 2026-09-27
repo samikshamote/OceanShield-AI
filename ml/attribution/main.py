@@ -2,6 +2,8 @@ import json
 import os
 from pathlib import Path
 
+import pandas as pd
+
 from ais_loader import load_ais_data
 from candidate_filter import (
     filter_by_distance,
@@ -17,7 +19,7 @@ from scoring import generate_scores
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-DETECTION_RESULT_PATH = (
+DETECTION_FILE = (
     PROJECT_ROOT
     / "ml"
     / "detection"
@@ -25,7 +27,7 @@ DETECTION_RESULT_PATH = (
     / "detection_result.json"
 )
 
-AIS_FILE_PATH = (
+AIS_FILE = (
     PROJECT_ROOT
     / "ml"
     / "attribution"
@@ -33,12 +35,15 @@ AIS_FILE_PATH = (
     / "ais_sample.csv"
 )
 
-OUTPUT_DIRECTORY = (
+OUTPUT_DIR = (
     PROJECT_ROOT
     / "ml"
     / "attribution"
     / "outputs"
 )
+
+RANKED_CSV = OUTPUT_DIR / "ranked_candidates.csv"
+INVESTIGATION_JSON = OUTPUT_DIR / "vessel_investigation.json"
 
 
 # ============================================================
@@ -47,28 +52,305 @@ OUTPUT_DIRECTORY = (
 
 def load_detection_result():
 
-    if not DETECTION_RESULT_PATH.exists():
-
+    if not DETECTION_FILE.exists():
         raise FileNotFoundError(
-            "Detection result not found:\n"
-            f"{DETECTION_RESULT_PATH}\n\n"
-            "Run the U-Net detection pipeline first:\n"
-            "python ml\\detection\\predict.py"
+            f"Detection result not found:\n{DETECTION_FILE}"
         )
 
-    with open(
-        DETECTION_RESULT_PATH,
-        "r",
-        encoding="utf-8"
-    ) as file:
-
-        result = json.load(file)
-
-    return result
+    with open(DETECTION_FILE, "r", encoding="utf-8") as file:
+        return json.load(file)
 
 
 # ============================================================
-# AIS VESSEL ATTRIBUTION - MAIN PIPELINE
+# CIRCULAR MEAN FOR COG
+# ============================================================
+
+def calculate_average_cog(values):
+    """
+    Calculate circular mean of compass headings.
+
+    Example:
+    359° and 1° should average to approximately 0°,
+    not 180°.
+    """
+
+    values = pd.to_numeric(
+        pd.Series(values),
+        errors="coerce"
+    ).dropna()
+
+    if values.empty:
+        return None
+
+    import math
+
+    radians = [
+        math.radians(float(value) % 360)
+        for value in values
+    ]
+
+    sin_mean = sum(math.sin(x) for x in radians) / len(radians)
+    cos_mean = sum(math.cos(x) for x in radians) / len(radians)
+
+    angle = math.degrees(
+        math.atan2(sin_mean, cos_mean)
+    )
+
+    return round(angle % 360, 2)
+
+
+# ============================================================
+# GET VESSEL INFORMATION
+# ============================================================
+
+def get_vessel_information(ais_data, mmsi):
+
+    vessel_data = ais_data[
+        ais_data["MMSI"].astype(str) == str(mmsi)
+    ].copy()
+
+    if vessel_data.empty:
+        return {
+            "average_cog": None,
+            "destination": None
+        }
+
+    # --------------------------------------------------------
+    # Average heading
+    # --------------------------------------------------------
+
+    average_cog = None
+
+    if "COG" in vessel_data.columns:
+        average_cog = calculate_average_cog(
+            vessel_data["COG"]
+        )
+
+    # --------------------------------------------------------
+    # Destination
+    # --------------------------------------------------------
+
+    destination = None
+
+    if "destination" in vessel_data.columns:
+
+        destinations = (
+            vessel_data["destination"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+        )
+
+        destinations = destinations[
+            destinations != ""
+        ]
+
+        if not destinations.empty:
+            destination = destinations.mode().iloc[0]
+
+    return {
+        "average_cog": average_cog,
+        "destination": destination
+    }
+
+
+# ============================================================
+# BUILD INVESTIGATION JSON
+# ============================================================
+
+def build_investigation_json(
+    detection_result,
+    ranked_vessels,
+    ais_data,
+    spill_time
+):
+
+    candidates = []
+
+    for _, row in ranked_vessels.iterrows():
+
+        mmsi = str(row["MMSI"])
+
+        vessel_info = get_vessel_information(
+            ais_data,
+            mmsi
+        )
+
+        candidate = {
+            "rank": int(row["rank"]),
+
+            "mmsi": mmsi,
+
+            "ship_type": str(
+                row.get("ship_type", "Unknown")
+            ),
+
+            "distance_km": round(
+                float(row["distance_km"]),
+                3
+            ),
+
+            "time_difference_minutes": round(
+                float(row["time_difference_minutes"]),
+                1
+            ),
+
+            "trajectory": str(
+                row.get("trajectory", "Unknown")
+            ),
+
+            "average_speed": round(
+                float(row["average_speed"]),
+                2
+            ),
+
+            "average_cog": vessel_info["average_cog"],
+
+            "destination": vessel_info["destination"],
+
+            "evidence_score": round(
+                float(row["attribution_likelihood"]),
+                2
+            )
+        }
+
+        # ----------------------------------------------------
+        # Preserve additional scoring evidence if available
+        # ----------------------------------------------------
+
+        optional_score_fields = [
+            "distance_score",
+            "time_score",
+            "trajectory_score",
+            "approach_score",
+            "heading_score",
+            "speed_score"
+        ]
+
+        evidence = {}
+
+        for field in optional_score_fields:
+
+            if field in ranked_vessels.columns:
+
+                value = row[field]
+
+                if pd.notna(value):
+
+                    evidence[field] = round(
+                        float(value),
+                        4
+                    )
+
+        if evidence:
+            candidate["evidence_components"] = evidence
+
+        candidates.append(candidate)
+
+    # ========================================================
+    # FINAL JSON STRUCTURE
+    # ========================================================
+
+    investigation = {
+        "project": "OceanShield-AI",
+
+        "data_type": "Synthetic AIS Demo Scenario",
+
+        "purpose": (
+            "AIS-based vessel investigation and evidence ranking "
+            "around a detected oil-spill location."
+        ),
+
+        "important_note": (
+            "The attribution score is an evidence-based ranking "
+            "score. It does not prove that a vessel caused the spill."
+        ),
+
+        "incident": {
+            "scene": detection_result.get(
+                "scene",
+                "Unknown"
+            ),
+
+            "acquisition_date": detection_result.get(
+                "acquisition_date",
+                None
+            ),
+
+            "latitude": detection_result[
+                "centroid"
+            ]["latitude"],
+
+            "longitude": detection_result[
+                "centroid"
+            ]["longitude"],
+
+            "detected_area_km2": detection_result.get(
+                "spill_area_km2",
+                detection_result.get(
+                    "spill_area",
+                    None
+                )
+            ),
+
+            "mean_confidence": detection_result.get(
+                "mean_spill_confidence",
+                detection_result.get(
+                    "mean_confidence",
+                    None
+                )
+            ),
+
+            "spill_time": spill_time,
+
+            "spill_time_type": "DEMO_REFERENCE_TIME",
+
+            "spill_time_note": (
+                "Reference/demo time used for AIS correlation. "
+                "The exact Sentinel-1 acquisition time is not "
+                "available in detection_result.json."
+            )
+        },
+
+        "filtering": {
+            "maximum_distance_km": 10,
+
+            "time_window_minutes": 60
+        },
+
+        "candidates": candidates
+    }
+
+    return investigation
+
+
+# ============================================================
+# SAVE INVESTIGATION JSON
+# ============================================================
+
+def save_investigation_json(investigation):
+
+    OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    with open(
+        INVESTIGATION_JSON,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            investigation,
+            file,
+            indent=4,
+            ensure_ascii=False
+        )
+
+
+# ============================================================
+# MAIN PIPELINE
 # ============================================================
 
 def main():
@@ -79,7 +361,7 @@ def main():
     print("=" * 70)
 
     # ========================================================
-    # 1. LOAD AI DETECTION RESULT
+    # LOAD DETECTION RESULT
     # ========================================================
 
     print("\n")
@@ -89,63 +371,48 @@ def main():
 
     detection_result = load_detection_result()
 
-    # --------------------------------------------------------
-    # Verify that a spill was detected
-    # --------------------------------------------------------
-
-    if not detection_result.get(
-        "spill_detected",
-        False
-    ):
-
-        print(
-            "\nNo oil spill detected by the AI model."
-        )
-
+    if not detection_result.get("spill_detected", True):
+        print("\nNo spill detected.")
         return
 
-    # --------------------------------------------------------
-    # Extract spill coordinates
-    # --------------------------------------------------------
+    # ========================================================
+    # SPILL INFORMATION
+    # ========================================================
 
-    centroid = detection_result.get(
-        "centroid",
-        {}
+    centroid = detection_result["centroid"]
+
+    spill_lat = float(
+        centroid["latitude"]
     )
 
-    spill_lat = centroid.get(
-        "latitude"
-    )
-
-    spill_lon = centroid.get(
-        "longitude"
+    spill_lon = float(
+        centroid["longitude"]
     )
 
     acquisition_date = detection_result.get(
-        "acquisition_date"
+        "acquisition_date",
+        "Unknown"
     )
 
-    if (
-        spill_lat is None
-        or spill_lon is None
-    ):
-
-        raise ValueError(
-            "Detection result does not contain "
-            "valid spill coordinates."
+    spill_area = detection_result.get(
+        "spill_area_km2",
+        detection_result.get(
+            "spill_area",
+            "Unknown"
         )
+    )
 
-    # --------------------------------------------------------
-    # AIS time limitation
-    # --------------------------------------------------------
+    mean_confidence = detection_result.get(
+        "mean_spill_confidence",
+        detection_result.get(
+            "mean_confidence",
+            "Unknown"
+        )
+    )
 
-    # The current detection JSON contains the acquisition DATE,
-    # but not an exact acquisition TIME.
-    #
-    # Therefore, we do NOT invent a timestamp.
-    #
-    # For the current prototype, the AIS analysis time must be
-    # supplied explicitly.
+    # ========================================================
+    # DEMO TIME
+    # ========================================================
 
     spill_time = os.getenv(
         "OCEANSHIELD_SPILL_TIME"
@@ -163,12 +430,12 @@ def main():
         )
 
         print(
-            "AIS time filtering therefore requires "
+            "AIS time filtering requires "
             "OCEANSHIELD_SPILL_TIME."
         )
 
         print(
-            "\nExample:"
+            '\nExample PowerShell command:'
         )
 
         print(
@@ -176,70 +443,50 @@ def main():
             '"2018-09-26 10:30:00"'
         )
 
-        print(
-            "\nThe detected spill location will still be "
-            "used automatically."
-        )
-
         return
-
-    # ========================================================
-    # 2. SPILL INFORMATION
-    # ========================================================
-
-    max_distance_km = 10
-    max_time_minutes = 60
 
     print("\nSPILL INFORMATION")
     print("-" * 70)
 
     print(
         f"Detection scene : "
-        f"{detection_result.get('scene')}"
+        f"{detection_result.get('scene', 'Unknown')}"
     )
 
     print(
-        f"Acquisition date: "
-        f"{acquisition_date}"
+        f"Acquisition date: {acquisition_date}"
     )
 
     print(
-        f"Latitude        : "
-        f"{spill_lat:.6f}"
+        f"Latitude        : {spill_lat}"
     )
 
     print(
-        f"Longitude       : "
-        f"{spill_lon:.6f}"
+        f"Longitude       : {spill_lon}"
     )
 
     print(
-        f"Spill time      : "
-        f"{spill_time}"
+        f"Spill time      : {spill_time}"
     )
 
     print(
-        f"Detected area   : "
-        f"{detection_result['spill']['area_km2']:.2f} km²"
+        f"Detected area   : {spill_area} km2"
     )
 
     print(
-        f"Mean confidence: "
-        f"{detection_result['confidence']['mean_spill']:.3f}"
+        f"Mean confidence: {mean_confidence}"
     )
 
     print(
-        f"Distance limit  : "
-        f"{max_distance_km} km"
+        "Distance limit  : 10 km"
     )
 
     print(
-        f"Time window     : "
-        f"±{max_time_minutes} minutes"
+        "Time window     : +/-60 minutes"
     )
 
     # ========================================================
-    # STEP 1 - LOAD AIS DATA
+    # STEP 1 — LOAD AIS
     # ========================================================
 
     print("\n")
@@ -248,7 +495,15 @@ def main():
     print("=" * 70)
 
     ais_data = load_ais_data(
-        str(AIS_FILE_PATH)
+        str(AIS_FILE)
+    )
+
+    print(
+        "\nAIS Columns:"
+    )
+
+    print(
+        list(ais_data.columns)
     )
 
     print(
@@ -257,7 +512,7 @@ def main():
     )
 
     # ========================================================
-    # STEP 2 - DISTANCE FILTERING
+    # STEP 2 — DISTANCE FILTER
     # ========================================================
 
     print("\n")
@@ -269,17 +524,16 @@ def main():
         ais_data,
         spill_lat,
         spill_lon,
-        max_distance_km
+        max_distance_km=10
     )
 
     print(
-        f"Records within "
-        f"{max_distance_km} km: "
+        f"Records within 10 km: "
         f"{len(distance_candidates)}"
     )
 
     # ========================================================
-    # STEP 3 - TIME FILTERING
+    # STEP 3 — TIME FILTER
     # ========================================================
 
     print("\n")
@@ -288,19 +542,26 @@ def main():
     print("=" * 70)
 
     time_candidates = filter_by_time(
-        distance_candidates,
-        spill_time,
-        max_time_minutes
-    )
+    distance_candidates,
+    spill_time,
+    time_window_minutes=60
+)
 
     print(
-        f"Records within "
-        f"±{max_time_minutes} minutes: "
+        f"Records within +/-60 minutes: "
         f"{len(time_candidates)}"
     )
 
+    if time_candidates.empty:
+
+        print(
+            "\nNo AIS candidates found."
+        )
+
+        return
+
     # ========================================================
-    # STEP 4 - TRAJECTORY ANALYSIS
+    # STEP 4 — TRAJECTORY ANALYSIS
     # ========================================================
 
     print("\n")
@@ -309,7 +570,7 @@ def main():
     print("=" * 70)
 
     trajectory_results = analyze_trajectory(
-        ais_data,
+        time_candidates,
         spill_lat,
         spill_lon
     )
@@ -320,7 +581,7 @@ def main():
     )
 
     # ========================================================
-    # STEP 5 - ATTRIBUTION SCORING
+    # STEP 5 — ATTRIBUTION SCORING
     # ========================================================
 
     print("\n")
@@ -334,26 +595,18 @@ def main():
         ais_data,
         spill_lat,
         spill_lon,
-        max_distance_km,
-        max_time_minutes
+        10,
+        60
     )
 
     # ========================================================
-    # STEP 6 - DISPLAY RESULTS
+    # DISPLAY RESULTS
     # ========================================================
 
     print("\n")
     print("=" * 70)
     print("FINAL VESSEL RANKING")
     print("=" * 70)
-
-    if ranked_vessels.empty:
-
-        print(
-            "\nNo candidate vessels found."
-        )
-
-        return
 
     display_columns = [
         "rank",
@@ -366,74 +619,77 @@ def main():
         "attribution_likelihood"
     ]
 
+    available_columns = [
+        column
+        for column in display_columns
+        if column in ranked_vessels.columns
+    ]
+
     print(
         ranked_vessels[
-            display_columns
+            available_columns
         ].to_string(index=False)
     )
 
     # ========================================================
-    # STEP 7 - TOP CANDIDATE
+    # TOP CANDIDATE
     # ========================================================
 
-    best = ranked_vessels.iloc[0]
+    if not ranked_vessels.empty:
 
-    print("\n")
-    print("=" * 70)
-    print("TOP CANDIDATE")
-    print("=" * 70)
+        top = ranked_vessels.iloc[0]
 
-    print(
-        f"MMSI                  : "
-        f"{best['MMSI']}"
-    )
+        print("\n")
+        print("=" * 70)
+        print("TOP CANDIDATE")
+        print("=" * 70)
 
-    print(
-        f"Ship type             : "
-        f"{best['ship_type']}"
-    )
+        print(
+            f"MMSI                  : "
+            f"{top['MMSI']}"
+        )
 
-    print(
-        f"Closest distance      : "
-        f"{best['distance_km']:.2f} km"
-    )
+        print(
+            f"Ship type             : "
+            f"{top['ship_type']}"
+        )
 
-    print(
-        f"Time difference       : "
-        f"{best['time_difference_minutes']:.1f} minutes"
-    )
+        print(
+            f"Closest distance      : "
+            f"{top['distance_km']:.2f} km"
+        )
 
-    print(
-        f"Trajectory            : "
-        f"{best['trajectory']}"
-    )
+        print(
+            f"Time difference       : "
+            f"{top['time_difference_minutes']:.1f} minutes"
+        )
 
-    print(
-        f"Average speed         : "
-        f"{best['average_speed']:.2f} knots"
-    )
+        print(
+            f"Trajectory            : "
+            f"{top['trajectory']}"
+        )
 
-    print(
-        f"Attribution score     : "
-        f"{best['attribution_likelihood']:.2f}%"
-    )
+        print(
+            f"Average speed         : "
+            f"{top['average_speed']:.2f} knots"
+        )
+
+        print(
+            f"Attribution score     : "
+            f"{top['attribution_likelihood']:.2f}%"
+        )
 
     # ========================================================
-    # STEP 8 - SAVE RESULTS
+    # SAVE CSV
     # ========================================================
 
-    OUTPUT_DIRECTORY.mkdir(
+    OUTPUT_DIR.mkdir(
         parents=True,
         exist_ok=True
     )
 
-    output_file = (
-        OUTPUT_DIRECTORY
-        / "ranked_candidates.csv"
-    )
-
     ranked_vessels.to_csv(
-        output_file,
+        RANKED_CSV,
         index=False
     )
 
@@ -443,8 +699,27 @@ def main():
     print("=" * 70)
 
     print(
-        f"Output file: "
-        f"{output_file}"
+        f"CSV file: {RANKED_CSV}"
+    )
+
+    # ========================================================
+    # GENERATE INVESTIGATION JSON
+    # ========================================================
+
+    investigation = build_investigation_json(
+        detection_result,
+        ranked_vessels,
+        ais_data,
+        spill_time
+    )
+
+    save_investigation_json(
+        investigation
+    )
+
+    print(
+        f"Investigation JSON: "
+        f"{INVESTIGATION_JSON}"
     )
 
     # ========================================================
@@ -461,6 +736,15 @@ def main():
         "ranking score and does not prove causation."
     )
 
+    print(
+        "Note: AIS data in this demonstration is synthetic "
+        "demo data and must not be interpreted as real vessel involvement."
+    )
+
+
+# ============================================================
+# ENTRY POINT
+# ============================================================
 
 if __name__ == "__main__":
     main()
