@@ -64,6 +64,8 @@ function App() {
   const [detection, setDetection] = useState(null);
   const [attribution, setAttribution] = useState(null);
   const [gis, setGis] = useState(null);
+  const [aiAssessment, setAiAssessment] = useState(null);
+  const [decision, setDecision] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -80,25 +82,33 @@ function App() {
       try {
 
         const [
-          detectionResponse,
-          attributionResponse,
-          gisResponse
-        ] = await Promise.all([
+                detectionResponse,
+                attributionResponse,
+                gisResponse,
+                aiAssessmentResponse,
+                decisionResponse
+              ] = await Promise.all([
 
-          fetch(`${API_BASE}/api/detection`),
+            fetch(`${API_BASE}/api/detection`),
 
-          fetch(`${API_BASE}/api/attribution`),
+            fetch(`${API_BASE}/api/attribution`),
 
-          fetch(`${API_BASE}/api/gis`)
+            fetch(`${API_BASE}/api/gis`),
 
-        ]);
+            fetch(`${API_BASE}/api/ai-assessment`),
+
+            fetch(`${API_BASE}/api/decision`)
+
+          ]);
 
 
-        if (
-          !detectionResponse.ok ||
-          !attributionResponse.ok ||
-          !gisResponse.ok
-        ) {
+          if (
+              !detectionResponse.ok ||
+              !attributionResponse.ok ||
+              !gisResponse.ok ||
+              !aiAssessmentResponse.ok ||
+              !decisionResponse.ok
+              ) {
 
           throw new Error(
             "Backend API request failed"
@@ -116,12 +126,22 @@ function App() {
         const gisData =
           await gisResponse.json();
 
+        const aiAssessmentData =
+          await aiAssessmentResponse.json();
 
-        setDetection(detectionData);
+        const decisionData =
+          await decisionResponse.json();  
 
-        setAttribution(attributionData);
 
-        setGis(gisData);
+          setDetection(detectionData);
+
+          setAttribution(attributionData);
+
+          setGis(gisData);
+
+          setAiAssessment(aiAssessmentData);
+
+          setDecision(decisionData);
 
 
       } catch (err) {
@@ -206,6 +226,12 @@ function App() {
 
   const geojson =
     gis?.data;
+  
+  const assessment =
+  aiAssessment?.data;
+
+  const decisionData =
+    decision?.data;  
 
 
   const latitude =
@@ -437,238 +463,812 @@ function App() {
           </div>
 
         </section>
+ 
+
+              {/* ====================================================
+           AI ASSESSMENT + INCIDENT DECISION
+           ==================================================== */}
+
+        <section className="assessment-grid">
+
+
+          {/* AI ASSESSMENT */}
+
+          <div className="card section">
+
+            <div className="section-header">
+
+              <div>
+
+                <h2>
+                  🤖 AI Assessment
+                </h2>
+
+                <p>
+                  AI-assisted interpretation of detected spill candidates
+                </p>
+
+              </div>
+
+              <span className="badge high">
+                {assessment?.assessment?.confidence_level || "N/A"}
+              </span>
+
+            </div>
+
+
+            <div className="assessment-items">
+
+
+              <div className="assessment-item">
+
+                <span className="label">
+                  CONFIDENCE LEVEL
+                </span>
+
+                <strong>
+                  {assessment?.assessment?.confidence_level || "N/A"}
+                </strong>
+
+              </div>
+
+
+              <div className="assessment-item">
+
+                <span className="label">
+                  SPATIAL EXTENT
+                </span>
+
+                <strong>
+                  {assessment?.assessment?.spatial_extent || "N/A"}
+                </strong>
+
+              </div>
+
+
+              <div className="assessment-item">
+
+                <span className="label">
+                  DETECTION QUALITY
+                </span>
+
+                <strong>
+                  {assessment?.assessment?.detection_quality || "N/A"}
+                </strong>
+
+              </div>
+
+
+              <div className="assessment-item">
+
+                <span className="label">
+                  PRIMARY REGION
+                </span>
+
+                <strong>
+                  #
+                  {assessment?.candidate_analysis?.primary_candidate?.region_id ?? "N/A"}
+                </strong>
+
+              </div>
+
+
+              <div className="assessment-item">
+
+                <span className="label">
+                  CANDIDATE REGIONS
+                </span>
+
+                <strong>
+                  {assessment?.candidate_analysis?.total_regions ?? "N/A"}
+                </strong>
+
+              </div>
+
+
+              <div className="assessment-item">
+
+                <span className="label">
+                  PRIMARY AREA
+                </span>
+
+                <strong>
+                  {assessment?.candidate_analysis?.primary_candidate?.area_pixels?.toLocaleString() || "N/A"}
+                  {" px"}
+                </strong>
+
+              </div>
+
+
+              <div className="assessment-item">
+
+                <span className="label">
+                  PRIMARY CONFIDENCE
+                </span>
+
+                <strong>
+                  {(
+                    (assessment?.candidate_analysis?.primary_candidate?.mean_confidence || 0)
+                    * 100
+                  ).toFixed(2)}
+                  %
+                </strong>
+
+              </div>
+
+
+            </div>
+
+          </div>
+
+
+          {/* INCIDENT DECISION */}
+
+          <div className="card section">
+
+            <div className="section-header">
+
+              <div>
+
+                <h2>
+                  🚨 Incident Assessment
+                </h2>
+
+                <p>
+                  Rule-based decision support requiring human verification
+                </p>
+
+              </div>
+
+              <span className="badge high">
+                {decisionData?.decision?.risk_level || "N/A"}
+              </span>
+
+            </div>
+
+
+            <div className="incident-panel">
+
+
+              <div className="incident-main">
+
+                <span className="label">
+                  ALERT PRIORITY
+                </span>
+
+                <strong>
+                  {decisionData?.decision?.alert_priority || "N/A"}
+                </strong>
+
+              </div>
+
+
+              <div className="incident-main">
+
+                <span className="label">
+                  DECISION SCORE
+                </span>
+
+                <strong>
+                  {decisionData?.decision?.decision_score ?? "N/A"}
+                  /100
+                </strong>
+
+              </div>
+
+
+              <div className="verification-box">
+
+                <span>
+                  👤 HUMAN VERIFICATION
+                </span>
+
+                <strong>
+                  {decisionData?.decision?.human_verification_required
+                    ? "REQUIRED"
+                    : "NOT REQUIRED"}
+                </strong>
+
+              </div>
+
+
+              <div className="decision-explanation">
+
+                <span className="label">
+                  DECISION EXPLANATION
+                </span>
+
+                <p>
+                  {decisionData?.decision?.explanation ||
+                    "No explanation available."}
+                </p>
+
+              </div>
+
+
+            </div>
+
+          </div>
+
+                </section>
 
 
         {/* ====================================================
-           INTERACTIVE GIS MAP
+           AI EXPLANATION + MODEL VALIDATION
            ==================================================== */}
 
-        <section className="card section map-section">
-
+        <section className="card section">
 
           <div className="section-header">
 
             <div>
 
               <h2>
-                🗺️ Live GIS Spill Intelligence
+                🧠 Why Did AI Flag This?
               </h2>
 
               <p>
-                Interactive geospatial visualization generated from
-                the AI spill mask
+                Explainable assessment generated from the AI detection pipeline
               </p>
 
             </div>
 
-
             <span className="badge">
-              GIS ACTIVE
+              U-NET
             </span>
 
           </div>
 
 
-          <div className="map-container">
+          {/* AI EXPLANATION */}
 
-            <MapContainer
-              center={mapCenter}
-              zoom={9}
-              scrollWheelZoom={true}
-              className="ocean-map"
-            >
+          <div className="explanation-box">
 
+            <p>
+              {assessment?.assessment?.explanation ||
+                "AI explanation unavailable."}
+            </p>
 
-              {/* BASE MAP */}
-
-              <TileLayer
-                attribution='&copy; OpenStreetMap contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+          </div>
 
 
-              {/* ACTUAL AI SPILL FOOTPRINT */}
+          {/* MODEL DETAILS */}
 
-              {geojson && (
+          <div className="model-details">
 
-                <GeoJSON
-                  data={geojson}
-                  style={{
-                    color: "red",
-                    weight: 2,
-                    fillColor: "red",
-                    fillOpacity: 0.55
-                  }}
-                />
+            <div>
 
-              )}
-
-
-              {/* AI CENTROID */}
-
-              <Marker
-                position={[
-                  latitude,
-                  longitude
-                ]}
-              >
-
-                <Popup>
-
-                  <strong>
-                    AI-Detected Oil Spill
-                  </strong>
-
-                  <br />
-                  <br />
-
-                  Scene:
-                  {" "}
-                  {result?.scene}
-
-                  <br />
-
-                  Date:
-                  {" "}
-                  {result?.acquisition_date}
-
-                  <br />
-
-                  Spill Area:
-                  {" "}
-                  {spillArea.toFixed(2)}
-                  {" km²"}
-
-                  <br />
-
-                  Confidence:
-                  {" "}
-                  {(confidence * 100).toFixed(1)}
-                  %
-
-                </Popup>
-
-              </Marker>
-
-
-              {/* RISK ZONE */}
-
-              <Circle
-                center={[
-                  latitude,
-                  longitude
-                ]}
-                radius={5040}
-                pathOptions={{
-                  color: "red",
-                  fillColor: "red",
-                  fillOpacity: 0.10
-                }}
-              />
-
-
-              {/* ESTIMATED MOVEMENT */}
-
-              <Polyline
-                positions={[
-                  [
-                    latitude,
-                    longitude
-                  ],
-
-                  [
-                    latitude,
-                    predictedLongitude
-                  ]
-                ]}
-                pathOptions={{
-                  color: "black",
-                  weight: 4,
-                  dashArray: "8 8"
-                }}
-              />
-
-
-              {/* FUTURE POSITION */}
-
-              <Marker
-                position={[
-                  latitude,
-                  predictedLongitude
-                ]}
-              >
-
-                <Popup>
-
-                  <strong>
-                    Estimated Spill Movement
-                  </strong>
-
-                  <br />
-                  <br />
-
-                  Wind:
-                  {" "}
-                  20 km/h
-
-                  <br />
-
-                  Direction:
-                  {" "}
-                  East
-
-                  <br />
-
-                  Estimated movement:
-                  {" "}
-                  2.00 km
-
-                </Popup>
-
-              </Marker>
-
-
-              {/* AUTO FIT */}
-
-              <MapBounds
-                geojson={geojson}
-              />
-
-
-            </MapContainer>
-
-
-            {/* MAP LEGEND */}
-
-            <div className="map-legend">
+              <span className="label">
+                MODEL
+              </span>
 
               <strong>
-                GIS Layers
+                {assessment?.model?.architecture || "N/A"}
               </strong>
 
-              <div>
-                🔴 AI Spill Footprint
+            </div>
+
+
+            <div>
+
+              <span className="label">
+                INPUT
+              </span>
+
+              <strong>
+                {assessment?.model?.input || "N/A"}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span className="label">
+                PATCH SIZE
+              </span>
+
+              <strong>
+                {assessment?.model?.patch_size || "N/A"}
+                {" × "}
+                {assessment?.model?.patch_size || "N/A"}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span className="label">
+                THRESHOLD
+              </span>
+
+              <strong>
+                {assessment?.model?.threshold ?? "N/A"}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          {/* VALIDATION */}
+
+          <div className="validation-section">
+
+            <h3>
+              📊 Model Validation
+            </h3>
+
+            <p className="validation-note">
+              Performance on a held-out test scene — not a probability of oil detection.
+            </p>
+
+
+            <div className="validation-grid">
+
+
+              <div className="validation-card">
+
+                <span>
+                  IoU
+                </span>
+
+                <strong>
+                  {(
+                    (assessment?.validation?.iou || 0) * 100
+                  ).toFixed(2)}
+                  %
+                </strong>
+
               </div>
 
-              <div>
-                📍 Detection Centroid
+
+              <div className="validation-card">
+
+                <span>
+                  Dice / F1
+                </span>
+
+                <strong>
+                  {(
+                    (assessment?.validation?.dice || 0) * 100
+                  ).toFixed(2)}
+                  %
+                </strong>
+
               </div>
 
-              <div>
-                ⭕ Risk Zone
+
+              <div className="validation-card">
+
+                <span>
+                  Precision
+                </span>
+
+                <strong>
+                  {(
+                    (assessment?.validation?.precision || 0) * 100
+                  ).toFixed(2)}
+                  %
+                </strong>
+
               </div>
 
-              <div>
-                ➜ Estimated Movement
+
+              <div className="validation-card">
+
+                <span>
+                  Recall
+                </span>
+
+                <strong>
+                  {(
+                    (assessment?.validation?.recall || 0) * 100
+                  ).toFixed(2)}
+                  %
+                </strong>
+
               </div>
 
             </div>
 
 
+            <div className="validation-footer">
+
+              <span>
+                Dataset:
+              </span>
+
+              <strong>
+                {assessment?.validation?.dataset || "N/A"}
+              </strong>
+
+              <span>
+                •
+              </span>
+
+              <span>
+                Scene:
+              </span>
+
+              <strong>
+                {assessment?.validation?.scene || "N/A"}
+              </strong>
+
+            </div>
+
           </div>
 
 
+          {/* LIMITATIONS */}
+
+          <div className="limitations-box">
+
+            <strong>
+              ⚠️ AI Safety Note
+            </strong>
+
+            <p>
+              AI confidence represents model output strength and does not by itself prove the presence of oil. Human verification is required before operational action.
+            </p>
+
+          </div>
+
         </section>
+
+
+
+        {/* ====================================================
+   INTERACTIVE GIS MAP
+   ==================================================== */}
+
+<section className="card section map-section">
+
+  <div className="section-header">
+
+    <div>
+
+      <h2>
+        🗺️ Live GIS Spill Intelligence
+      </h2>
+
+      <p>
+        Spatial visualization of AI-detected spill footprint,
+        risk zone and prototype movement estimate
+      </p>
+
+    </div>
+
+    <span className="badge">
+      GIS ACTIVE
+    </span>
+
+  </div>
+
+
+  {/* MAP */}
+
+  <div className="map-container">
+
+    <MapContainer
+      center={mapCenter}
+      zoom={9}
+      scrollWheelZoom={true}
+      className="ocean-map"
+    >
+
+      {/* ====================================================
+         BASE MAP
+         ==================================================== */}
+
+      <TileLayer
+        attribution='&copy; OpenStreetMap contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+
+
+      {/* ====================================================
+         AI SPILL FOOTPRINT
+         ==================================================== */}
+
+      {geojson && (
+
+        <GeoJSON
+          data={geojson}
+          style={{
+            color: "#ff3030",
+            weight: 2.5,
+            fillColor: "#ff3030",
+            fillOpacity: 0.48
+          }}
+
+          onEachFeature={(feature, layer) => {
+
+            layer.bindPopup(`
+              <div style="min-width:220px">
+
+                <strong style="font-size:15px">
+                  🔴 AI Spill Footprint
+                </strong>
+
+                <br /><br />
+
+                <b>Scene:</b>
+                ${result?.scene || "N/A"}
+
+                <br />
+
+                <b>Detected area:</b>
+                ${spillArea.toFixed(2)} km²
+
+                <br />
+
+                <b>Mean confidence:</b>
+                ${(confidence * 100).toFixed(1)}%
+
+                <br /><br />
+
+                <span style="color:#b45309">
+                  AI detection requires human verification.
+                </span>
+
+              </div>
+            `);
+
+          }}
+
+        />
+
+      )}
+
+
+      {/* ====================================================
+         DETECTION CENTROID
+         ==================================================== */}
+
+      <Marker
+        position={[
+          latitude,
+          longitude
+        ]}
+      >
+
+        <Popup>
+
+          <div style={{ minWidth: "220px" }}>
+
+            <strong style={{ fontSize: "15px" }}>
+              📍 AI Detection Centroid
+            </strong>
+
+            <br />
+            <br />
+
+            <b>Latitude:</b>
+            {" "}
+            {latitude.toFixed(6)}
+
+            <br />
+
+            <b>Longitude:</b>
+            {" "}
+            {longitude.toFixed(6)}
+
+            <br /><br />
+
+            <b>Spill area:</b>
+            {" "}
+            {spillArea.toFixed(2)}
+            {" km²"}
+
+            <br />
+
+            <b>Confidence:</b>
+            {" "}
+            {(confidence * 100).toFixed(1)}%
+
+            <br />
+
+            <b>Date:</b>
+            {" "}
+            {result?.acquisition_date || "N/A"}
+
+          </div>
+
+        </Popup>
+
+      </Marker>
+
+
+      {/* ====================================================
+         PROTOTYPE RISK ZONE
+         ==================================================== */}
+
+      <Circle
+        center={[
+          latitude,
+          longitude
+        ]}
+        radius={5040}
+        pathOptions={{
+          color: "#ff8a00",
+          weight: 2,
+          dashArray: "6 6",
+          fillColor: "#ff8a00",
+          fillOpacity: 0.08
+        }}
+      />
+
+
+      {/* ====================================================
+         ESTIMATED MOVEMENT PATH
+         ==================================================== */}
+
+      <Polyline
+        positions={[
+          [
+            latitude,
+            longitude
+          ],
+
+          [
+            latitude,
+            predictedLongitude
+          ]
+        ]}
+        pathOptions={{
+          color: "#111827",
+          weight: 4,
+          dashArray: "10 8"
+        }}
+      />
+
+
+      {/* ====================================================
+         ESTIMATED FUTURE POSITION
+         ==================================================== */}
+
+      <Marker
+        position={[
+          latitude,
+          predictedLongitude
+        ]}
+      >
+
+        <Popup>
+
+          <div style={{ minWidth: "220px" }}>
+
+            <strong style={{ fontSize: "15px" }}>
+              ➜ Prototype Movement Estimate
+            </strong>
+
+            <br />
+            <br />
+
+            <b>Wind:</b>
+            {" "}
+            20 km/h
+
+            <br />
+
+            <b>Direction:</b>
+            {" "}
+            East
+
+            <br />
+
+            <b>Estimated movement:</b>
+            {" "}
+            {movementDistance.toFixed(2)}
+            {" km"}
+
+            <br /><br />
+
+            <span style={{ color: "#b45309" }}>
+              Prototype wind-based estimate — not a
+              physical oil-spread forecast.
+            </span>
+
+          </div>
+
+        </Popup>
+
+      </Marker>
+
+
+      {/* ====================================================
+         AUTOMATIC MAP FIT
+         ==================================================== */}
+
+      <MapBounds
+        geojson={geojson}
+      />
+
+    </MapContainer>
+
+
+    {/* ====================================================
+       MAP OVERLAY — INCIDENT SUMMARY
+       ==================================================== */}
+
+    <div className="map-status-panel">
+
+      <div className="map-status-title">
+        INCIDENT SNAPSHOT
+      </div>
+
+      <div className="map-status-row">
+        <span>SPILL AREA</span>
+        <strong>
+          {spillArea.toFixed(2)} km²
+        </strong>
+      </div>
+
+      <div className="map-status-row">
+        <span>CONFIDENCE</span>
+        <strong>
+          {(confidence * 100).toFixed(1)}%
+        </strong>
+      </div>
+
+      <div className="map-status-row">
+        <span>PRIMARY REGION</span>
+        <strong>
+          #{assessment?.candidate_analysis?.primary_candidate?.region_id ?? "N/A"}
+        </strong>
+      </div>
+
+      <div className="map-status-row">
+        <span>RISK</span>
+        <strong className="map-risk">
+          PROTOTYPE HIGH
+        </strong>
+      </div>
+
+    </div>
+
+
+    {/* ====================================================
+       MAP LEGEND
+       ==================================================== */}
+
+    <div className="map-legend">
+
+      <strong>
+        GIS Layers
+      </strong>
+
+      <div>
+        <span className="legend-dot spill-dot"></span>
+        AI Spill Footprint
+      </div>
+
+      <div>
+        <span className="legend-dot centroid-dot"></span>
+        Detection Centroid
+      </div>
+
+      <div>
+        <span className="legend-circle"></span>
+        Prototype Risk Zone
+      </div>
+
+      <div>
+        <span className="legend-line"></span>
+        Estimated Movement
+      </div>
+
+      <div className="legend-note">
+        AI footprint requires human verification.
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
 
         {/* ====================================================
