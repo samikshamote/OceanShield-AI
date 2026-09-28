@@ -69,6 +69,7 @@ function App() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeView, setActiveView] = useState("overview");
 
 
   /* ============================================================
@@ -270,6 +271,27 @@ function App() {
     longitude
   ];
 
+    /* ============================================================
+     INVESTIGATION CONSOLE NAVIGATION
+     ============================================================ */
+
+  const navigateTo = (view, sectionId) => {
+
+    setActiveView(view);
+
+    const section = document.getElementById(sectionId);
+
+    if (section) {
+
+      section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+    }
+
+  };
+
 
   /* ============================================================
      RENDER DASHBOARD
@@ -311,6 +333,191 @@ function App() {
 
 
       <main className="dashboard">
+
+
+                {/* ====================================================
+           INVESTIGATION CONSOLE
+           ==================================================== */}
+
+        <section className="console-shell">
+
+          <div className="console-header">
+
+            <div>
+
+              <span className="console-eyebrow">
+                OPERATOR WORKSPACE
+              </span>
+
+              <h2>
+                Investigation Console
+              </h2>
+
+              <p>
+                Investigate a detected maritime incident from AI evidence
+                through spatial analysis, vessel attribution and decision support.
+              </p>
+
+            </div>
+
+            <div className="console-status">
+
+              <span className="console-status-dot"></span>
+
+              INCIDENT ACTIVE
+
+            </div>
+
+          </div>
+
+
+          {/* INCIDENT CONTROL BAR */}
+
+<div className="console-controls">
+
+  <button
+    className={
+      activeView === "overview"
+        ? "console-button active"
+        : "console-button"
+    }
+    onClick={() =>
+      navigateTo("overview", "ai-spill-detection")
+    }
+  >
+    <span>01</span>
+    Incident Overview
+  </button>
+
+
+  <button
+    className={
+      activeView === "evidence"
+        ? "console-button active"
+        : "console-button"
+    }
+    onClick={() =>
+      navigateTo("evidence", "ai-evidence")
+    }
+  >
+    <span>02</span>
+    AI Evidence
+  </button>
+
+
+  <button
+    className={
+      activeView === "gis"
+        ? "console-button active"
+        : "console-button"
+    }
+    onClick={() =>
+      navigateTo("gis", "gis-intelligence")
+    }
+  >
+    <span>03</span>
+    GIS Intelligence
+  </button>
+
+
+  <button
+    className={
+      activeView === "vessels"
+        ? "console-button active"
+        : "console-button"
+    }
+    onClick={() =>
+      navigateTo("vessels", "vessel-investigation")
+    }
+  >
+    <span>04</span>
+    Vessel Investigation
+  </button>
+
+
+  <button
+    className={
+      activeView === "decision"
+        ? "console-button active"
+        : "console-button"
+    }
+    onClick={() =>
+      navigateTo("decision", "decision-support")
+    }
+  >
+    <span>05</span>
+    Decision Support
+  </button>
+
+</div>
+
+
+          {/* CURRENT INCIDENT */}
+
+          <div className="console-incident">
+
+            <div>
+
+              <span className="label">
+                ACTIVE INCIDENT
+              </span>
+
+              <strong>
+                {result?.scene || "Loading incident..."}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span className="label">
+                LOCATION
+              </span>
+
+              <strong>
+                {latitude.toFixed(4)}, {longitude.toFixed(4)}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span className="label">
+                STATUS
+              </span>
+
+              <strong className="console-high">
+                INVESTIGATION REQUIRED
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span className="label">
+                VERIFICATION
+              </span>
+
+              <strong>
+                {decisionData?.decision?.human_verification_required
+                  ? "HUMAN REQUIRED"
+                  : "AUTOMATED"}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+
+
+
+
 
 
         {/* ====================================================
@@ -379,7 +586,10 @@ function App() {
            AI DETECTION
            ==================================================== */}
 
-        <section className="card section">
+          <section
+            id="ai-spill-detection"
+            className="card section"
+          >
 
 
           <div className="section-header">
@@ -604,7 +814,12 @@ function App() {
 
           {/* INCIDENT DECISION */}
 
-          <div className="card section">
+          {/* INCIDENT DECISION */}
+
+            <div
+              id="decision-support"
+              className="card section"
+            >
 
             <div className="section-header">
 
@@ -697,14 +912,17 @@ function App() {
            AI EXPLANATION + MODEL VALIDATION
            ==================================================== */}
 
-        <section className="card section">
+        <section
+  id="ai-evidence"
+  className="card section"
+>
 
-          <div className="section-header">
+  <div className="section-header">
 
-            <div>
+    <div>
 
-              <h2>
-                🧠 Why Did AI Flag This?
+      <h2>
+        🧠 Why Did AI Flag This?
               </h2>
 
               <p>
@@ -921,7 +1139,10 @@ function App() {
    INTERACTIVE GIS MAP
    ==================================================== */}
 
-<section className="card section map-section">
+<section
+  id="gis-intelligence"
+  className="card section map-section"
+>
 
   <div className="section-header">
 
@@ -1273,7 +1494,10 @@ function App() {
            VESSEL ATTRIBUTION
            ==================================================== */}
 
-        <section className="card section">
+        <section
+                id="vessel-investigation"
+                className="card section"
+              >
 
 
           <div className="section-header">
