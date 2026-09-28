@@ -1,0 +1,85 @@
+{
+    "project": "OceanShield-AI",
+    "assessment_type": "AI-assisted spill interpretation",
+    "status": "READY",
+    "assessment": {
+        "scene": "2018_09_26.tif",
+        "acquisition_date": "2018-09-26",
+        "spill_detected": true,
+        "confidence_level": "MODERATE",
+        "spatial_extent": "LARGE",
+        "detection_quality": "STRONG",
+        "explanation": "The U-Net model detected a candidate spill region in scene 2018_09_26.tif. The predicted footprint covers approximately 79.78 km\u00b2 (6.14% of the scene). Mean confidence within the predicted spill region is 75.9%, with a maximum pixel confidence of 99.7%. GIS analysis assigns a prototype risk level of HIGH based on the configured spatial-risk rules. AIS investigation identified MMSI 111000001 as the highest evidence-ranked candidate, with an evidence score of 88.22. The assessment supports investigation and prioritization; it does not independently prove that the detected feature is oil or that any vessel caused the spill.",
+        "centroid": {
+            "latitude": 28.921273782120938,
+            "longitude": -89.16764942152943
+        }
+    },
+    "candidate_analysis": {
+        "total_regions": 1,
+        "primary_candidate": {
+            "region_id": "SPILL-001",
+            "area_pixels": 797762,
+            "area_km2": 79.7762,
+            "mean_confidence": 0.759473443031311,
+            "coverage_percentage": 6.142742798315092
+        }
+    },
+    "model": {
+        "architecture": "U-Net",
+        "checkpoint": "C:\\Users\\Ninad\\Desktop\\New folder\\OceanShield-AI\\ml\\detection\\models\\unet_best.pth",
+        "patch_size": 256,
+        "stride": 128,
+        "threshold": 0.5,
+        "best_epoch": 6
+    },
+    "validation": {
+        "iou": 0.27746991407406607,
+        "dice": 0.36654161997163054,
+        "precision": null,
+        "recall": null,
+        "note": "Validation metrics stored in the best model checkpoint. Precision and recall were not stored in the checkpoint."
+    },
+    "gis_context": {
+        "risk_level": "HIGH",
+        "risk_classification": "AI-derived Prototype Risk Classification",
+        "movement": {
+            "type": "Prototype Drift Projection",
+            "wind_speed_kmh": 20,
+            "wind_direction": "East",
+            "estimated_distance_km": 2.0,
+            "predicted_latitude": 28.921273782120938,
+            "predicted_longitude": -89.14706410645903
+        }
+    },
+    "ais_context": {
+        "data_type": "Synthetic AIS Demo Scenario",
+        "candidate_count": 3,
+        "primary_candidate": {
+            "rank": 1,
+            "mmsi": "111000001",
+            "ship_type": "Tanker",
+            "distance_km": 0.744,
+            "time_difference_minutes": 10.0,
+            "trajectory": "Approached Then Moved Away",
+            "average_speed": 9.98,
+            "average_cog": 135.0,
+            "destination": "New Orleans",
+            "evidence_score": 88.22,
+            "evidence_components": {
+                "distance_score": 0.9256,
+                "time_score": 0.8333,
+                "trajectory_score": 1.0,
+                "approach_score": 1.0,
+                "heading_score": 0.5858
+            }
+        }
+    },
+    "limitations": [
+        "AI confidence does not prove the detected feature is oil.",
+        "GIS risk is a prototype rule-based classification.",
+        "AIS data in this demonstration is synthetic.",
+        "AIS evidence ranking does not prove vessel causation.",
+        "Human verification is required before operational action."
+    ]
+}

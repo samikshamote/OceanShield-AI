@@ -1,0 +1,59 @@
+{
+    "project": "OceanShield-AI",
+    "decision_type": "Rule-based decision support",
+    "status": "READY",
+    "decision": {
+        "risk_level": "HIGH",
+        "alert_priority": "HIGH",
+        "decision_score": 80.31,
+        "human_verification_required": true,
+        "explanation": "The detection pipeline identified a candidate spill covering approximately 79.78 km\u00b2 with 75.9% mean model confidence. The GIS module assigns a prototype HIGH risk classification using the configured spatial-risk rules. AIS correlation identified 3 candidate vessels within the configured investigation window. MMSI 111000001 has the highest evidence score at 88.22. The resulting decision-support score is 80.31/100. This score prioritizes the incident for investigation; it is not an oil-detection probability or proof of vessel causation. Human verification is required before operational action."
+    },
+    "score_components": {
+        "detection_confidence_component": 30.38,
+        "spatial_coverage_component": 12.29,
+        "gis_risk_component": 20,
+        "ais_evidence_component": 17.64
+    },
+    "inputs": {
+        "spill_detected": true,
+        "spill_area_km2": 79.7762,
+        "coverage_percentage": 6.142742798315092,
+        "mean_confidence": 0.759473443031311,
+        "gis_risk": "HIGH",
+        "ais_candidate_count": 3,
+        "top_ais_candidate": {
+            "rank": 1,
+            "mmsi": "111000001",
+            "ship_type": "Tanker",
+            "distance_km": 0.744,
+            "time_difference_minutes": 10.0,
+            "trajectory": "Approached Then Moved Away",
+            "average_speed": 9.98,
+            "average_cog": 135.0,
+            "destination": "New Orleans",
+            "evidence_score": 88.22,
+            "evidence_components": {
+                "distance_score": 0.9256,
+                "time_score": 0.8333,
+                "trajectory_score": 1.0,
+                "approach_score": 1.0,
+                "heading_score": 0.5858
+            }
+        }
+    },
+    "safety": {
+        "human_verification_required": true,
+        "not_an_oil_probability": true,
+        "not_vessel_causation_proof": true,
+        "ais_data_type": "Synthetic AIS Demo Scenario"
+    },
+    "limitations": [
+        "Decision score is a prototype prioritization score.",
+        "The score is not a probability of oil detection.",
+        "GIS risk classification is rule-based and not scientifically validated.",
+        "AIS data used in this demonstration is synthetic.",
+        "AIS evidence ranking does not establish causation.",
+        "Human verification is required before operational action."
+    ]
+}

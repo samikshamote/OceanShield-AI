@@ -801,8 +801,7 @@ function App() {
             </h3>
 
             <p className="validation-note">
-              Performance on a held-out test scene — not a probability of oil detection.
-            </p>
+		Validation performance during model development — not a probability 		of oil detection.         </p>
 
 
             <div className="validation-grid">
@@ -847,9 +846,9 @@ function App() {
                 </span>
 
                 <strong>
-                  {(
-                    (assessment?.validation?.precision || 0) * 100
-                  ).toFixed(2)}
+                  {assessment?.validation?.precision != null
+  ? `${(assessment.validation.precision * 100).toFixed(2)}%`
+  : "N/A"}
                   %
                 </strong>
 
@@ -863,9 +862,9 @@ function App() {
                 </span>
 
                 <strong>
-                  {(
-                    (assessment?.validation?.recall || 0) * 100
-                  ).toFixed(2)}
+                  {assessment?.validation?.recall != null
+  ? `${(assessment.validation.recall * 100).toFixed(2)}%`
+  : "N/A"}
                   %
                 </strong>
 
@@ -881,8 +880,7 @@ function App() {
               </span>
 
               <strong>
-                {assessment?.validation?.dataset || "N/A"}
-              </strong>
+                {assessment?.validation?.dataset || "Oil Spill 23 Scenes"}              	      </strong>
 
               <span>
                 •
@@ -893,8 +891,8 @@ function App() {
               </span>
 
               <strong>
-                {assessment?.validation?.scene || "N/A"}
-              </strong>
+                {assessment?.assessment?.scene || "N/A"}           
+	      </strong>
 
             </div>
 
