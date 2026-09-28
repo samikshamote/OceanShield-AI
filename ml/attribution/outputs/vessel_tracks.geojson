@@ -1,0 +1,174 @@
+{
+  "type": "FeatureCollection",
+  "name": "OceanShield-AI Vessel Tracks",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:4326"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -89.25,
+            28.97
+          ],
+          [
+            -89.22,
+            28.95
+          ],
+          [
+            -89.185,
+            28.93
+          ],
+          [
+            -89.165,
+            28.915
+          ],
+          [
+            -89.15,
+            28.905
+          ]
+        ]
+      },
+      "properties": {
+        "MMSI": "111000001",
+        "ship_type": "Tanker",
+        "destination": "New Orleans",
+        "is_candidate": true,
+        "rank": 1,
+        "distance_km": 0.744,
+        "time_difference_minutes": 10.0,
+        "trajectory": "Approached Then Moved Away",
+        "average_speed": 9.98,
+        "attribution_likelihood": 88.222
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -89.1,
+            28.85
+          ],
+          [
+            -89.08,
+            28.875
+          ],
+          [
+            -89.06,
+            28.9
+          ],
+          [
+            -89.04,
+            28.925
+          ]
+        ]
+      },
+      "properties": {
+        "MMSI": "222000002",
+        "ship_type": "Cargo",
+        "destination": "Houston",
+        "is_candidate": true,
+        "rank": 3,
+        "distance_km": 9.964,
+        "time_difference_minutes": 10.0,
+        "trajectory": "Stable",
+        "average_speed": 13.0,
+        "attribution_likelihood": 37.114
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -89.25,
+            28.9
+          ],
+          [
+            -89.23,
+            28.91
+          ],
+          [
+            -89.21,
+            28.92
+          ],
+          [
+            -89.19,
+            28.93
+          ],
+          [
+            -89.17,
+            28.94
+          ]
+        ]
+      },
+      "properties": {
+        "MMSI": "333000003",
+        "ship_type": "Tanker",
+        "destination": "Mobile",
+        "is_candidate": true,
+        "rank": 2,
+        "distance_km": 2.095,
+        "time_difference_minutes": 20.0,
+        "trajectory": "Approaching",
+        "average_speed": 8.9,
+        "attribution_likelihood": 71.296
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -89.05,
+            29.05
+          ],
+          [
+            -89.045,
+            29.052
+          ],
+          [
+            -89.04,
+            29.054
+          ]
+        ]
+      },
+      "properties": {
+        "MMSI": "444000004",
+        "ship_type": "Service",
+        "destination": "Offshore",
+        "is_candidate": false,
+        "rank": null,
+        "distance_km": null,
+        "time_difference_minutes": null,
+        "trajectory": null,
+        "average_speed": null,
+        "attribution_likelihood": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.16764942152943,
+          28.921273782120938
+        ]
+      },
+      "properties": {
+        "feature_type": "spill",
+        "label": "Detected Spill"
+      }
+    }
+  ]
+}
