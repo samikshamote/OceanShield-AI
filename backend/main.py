@@ -11,13 +11,16 @@ import pandas as pd
 
 app = FastAPI(
     title="OceanShield-AI Backend",
-    description="Backend API for oil-spill detection, GIS analysis, AIS vessel attribution and assessment.",
+    description=(
+        "Backend API for oil-spill detection, GIS analysis, "
+        "AIS vessel attribution and assessment."
+    ),
     version="1.0.0"
 )
 
 
 # ============================================================
-# CORS
+# CORS CONFIGURATION
 # ============================================================
 
 app.add_middleware(
@@ -30,17 +33,13 @@ app.add_middleware(
 
 
 # ============================================================
-# PATHS
+# PROJECT PATHS
 # ============================================================
 
 BACKEND_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BACKEND_DIR.parent
 
-
-# ------------------------------------------------------------
 # Detection
-# ------------------------------------------------------------
-
 DETECTION_FILE = (
     PROJECT_ROOT
     / "ml"
@@ -49,11 +48,7 @@ DETECTION_FILE = (
     / "detection_result.json"
 )
 
-
-# ------------------------------------------------------------
 # AIS Attribution
-# ------------------------------------------------------------
-
 ATTRIBUTION_FILE = (
     PROJECT_ROOT
     / "ml"
@@ -61,11 +56,6 @@ ATTRIBUTION_FILE = (
     / "outputs"
     / "ranked_candidates.csv"
 )
-
-
-# ------------------------------------------------------------
-# Vessel Investigation
-# ------------------------------------------------------------
 
 VESSEL_INVESTIGATION_FILE = (
     PROJECT_ROOT
@@ -75,11 +65,6 @@ VESSEL_INVESTIGATION_FILE = (
     / "vessel_investigation.json"
 )
 
-
-# ------------------------------------------------------------
-# Vessel Tracks
-# ------------------------------------------------------------
-
 VESSEL_TRACKS_FILE = (
     PROJECT_ROOT
     / "ml"
@@ -88,11 +73,7 @@ VESSEL_TRACKS_FILE = (
     / "vessel_tracks.geojson"
 )
 
-
-# ------------------------------------------------------------
 # GIS
-# ------------------------------------------------------------
-
 GIS_FILE = (
     PROJECT_ROOT
     / "Person3_GIS"
@@ -100,11 +81,7 @@ GIS_FILE = (
     / "spill_footprint.geojson"
 )
 
-
-# ------------------------------------------------------------
 # AI Assessment
-# ------------------------------------------------------------
-
 AI_ASSESSMENT_FILE = (
     PROJECT_ROOT
     / "ml"
@@ -113,11 +90,7 @@ AI_ASSESSMENT_FILE = (
     / "ai_assessment.json"
 )
 
-
-# ------------------------------------------------------------
 # Decision
-# ------------------------------------------------------------
-
 DECISION_FILE = (
     PROJECT_ROOT
     / "ml"
@@ -128,7 +101,7 @@ DECISION_FILE = (
 
 
 # ============================================================
-# ROOT ENDPOINT
+# ROOT API
 # ============================================================
 
 @app.get("/")
@@ -231,7 +204,9 @@ def get_attribution():
 
         return {
             "success": False,
-            "message": f"Error reading attribution results: {str(e)}"
+            "message": (
+                f"Error reading attribution results: {str(e)}"
+            )
         }
 
 
@@ -241,15 +216,8 @@ def get_attribution():
 
 @app.get("/api/vessel-investigation")
 def get_vessel_investigation():
-    """
-    Return detailed AIS vessel investigation results.
-
-    Source:
-    ml/attribution/outputs/vessel_investigation.json
-    """
 
     if not VESSEL_INVESTIGATION_FILE.exists():
-
         return {
             "success": False,
             "message": "Vessel investigation file not found",
@@ -282,22 +250,117 @@ def get_vessel_investigation():
 
         return {
             "success": False,
-            "message": f"Error reading vessel investigation: {str(e)}"
+            "message": (
+                f"Error reading vessel investigation: {str(e)}"
+            )
         }
 
 
 # ============================================================
-# VESSEL TRACKS API
+# VESSEL EVIDENCE API
+# ============================================================
+
+@app.get("/api/vessel-evidence/{mmsi}")
+def get_vessel_evidence(mmsi: str):
+    """
+    Return detailed evidence for one vessel.
+
+    Example:
+    /api/vessel-evidence/111000001
+    """
+
+    if not VESSEL_INVESTIGATION_FILE.exists():
+        return {
+            "success": False,
+            "message": "Vessel investigation file not found",
+            "file": str(VESSEL_INVESTIGATION_FILE)
+        }
+
+    try:
+
+        # ----------------------------------------------------
+        # Read investigation JSON
+        # ----------------------------------------------------
+
+        with open(
+            VESSEL_INVESTIGATION_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            investigation_data = json.load(file)
+
+        # ----------------------------------------------------
+        # Get candidates
+        # ----------------------------------------------------
+
+        candidates = investigation_data.get(
+            "candidates",
+            []
+        )
+
+        # ----------------------------------------------------
+        # Normalize requested MMSI
+        # ----------------------------------------------------
+
+        requested_mmsi = str(mmsi).strip()
+
+        # ----------------------------------------------------
+        # Search candidate vessels
+        # ----------------------------------------------------
+
+        for vessel in candidates:
+
+            vessel_mmsi = str(
+                vessel.get("mmsi", "")
+            ).strip()
+
+            if vessel_mmsi == requested_mmsi:
+
+                return {
+                    "success": True,
+                    "mmsi": requested_mmsi,
+                    "data": vessel
+                }
+
+        # ----------------------------------------------------
+        # Vessel not found
+        # ----------------------------------------------------
+
+        return {
+            "success": False,
+            "message": (
+                f"No evidence found for MMSI {requested_mmsi}"
+            )
+        }
+
+    except json.JSONDecodeError:
+
+        return {
+            "success": False,
+            "message": (
+                "Invalid vessel investigation JSON file"
+            )
+        }
+
+    except Exception as e:
+
+        return {
+            "success": False,
+            "message": (
+                f"Error reading vessel evidence: {str(e)}"
+            )
+        }
+
+
+# ============================================================
+# VESSEL TRACKS / GEOJSON API
 # ============================================================
 
 @app.get("/api/vessel-tracks")
 def get_vessel_tracks():
-    """
-    Return vessel track GeoJSON if it exists.
-    """
 
     if not VESSEL_TRACKS_FILE.exists():
-
         return {
             "success": False,
             "message": "Vessel tracks GeoJSON file not found",
@@ -323,14 +386,18 @@ def get_vessel_tracks():
 
         return {
             "success": False,
-            "message": "Invalid vessel tracks GeoJSON file"
+            "message": (
+                "Invalid vessel tracks GeoJSON file"
+            )
         }
 
     except Exception as e:
 
         return {
             "success": False,
-            "message": f"Error reading vessel tracks: {str(e)}"
+            "message": (
+                f"Error reading vessel tracks: {str(e)}"
+            )
         }
 
 
@@ -374,7 +441,9 @@ def get_gis():
 
         return {
             "success": False,
-            "message": f"Error reading GIS data: {str(e)}"
+            "message": (
+                f"Error reading GIS data: {str(e)}"
+            )
         }
 
 
@@ -418,7 +487,9 @@ def get_ai_assessment():
 
         return {
             "success": False,
-            "message": f"Error reading AI assessment: {str(e)}"
+            "message": (
+                f"Error reading AI assessment: {str(e)}"
+            )
         }
 
 
@@ -462,10 +533,12 @@ def get_decision():
 
         return {
             "success": False,
-            "message": f"Error reading decision result: {str(e)}"
+            "message": (
+                f"Error reading decision result: {str(e)}"
+            )
         }
 
 
 # ============================================================
-# END
+# END OF BACKEND
 # ============================================================
